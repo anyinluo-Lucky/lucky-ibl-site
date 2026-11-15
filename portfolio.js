@@ -23,25 +23,33 @@ const portfolioSections = {
     projects: [
       {
         title: 'Water Infrastructure Condition Monitoring',
+        id: 'water-monitoring',
+        short: 'Water Monitoring',
+        summary: 'Reliable monitoring and recovery after network interruption.',
+        evidence: [['water-dashboard', 'Site A dashboard · live ultrasonic input restored'], ['water-replay', 'Supabase recovery record · one replayed invalid reading'], ['water-architecture', 'Final report diagram · event flow and recovery']],
         details: [
           ['Challenge', 'Monitor level readings and keep event records during a network interruption.'],
-          ['My contribution', 'Connected the Grove sensor, worked on reading validation and dashboard alerts, and tested normal, invalid and recovery scenarios with the team.'],
-          ['Technical approach', 'A Raspberry Pi and Grove ultrasonic sensor supplied real Site A readings. Site B was simulated. Node-RED displayed local readings. A persistent SQLite outbox queued events for Supabase.'],
-          ['Result', 'The lab record documents live readings and a queued outage event that later matched its Supabase record. A paper target represented the water surface.']
+          ['My contribution', 'Defined the problem, reviewed evidence, compared technologies and coordinated and edited the team report.'],
+          ['Technical approach', 'A Raspberry Pi and Grove ultrasonic sensor supplied real Site A readings. Site B was simulated. Node-RED displayed local readings. The team wrote events to a persistent SQLite outbox during outages and retried them with their original IDs after reconnection to Supabase.'],
+          ['Result', 'In the live Pi lab run, a queued Site A event matched its Supabase row after reconnection. It was an invalid 525 cm reading, not a valid empty-tank value. Earlier Mac tests used simulated inputs. A paper target represented the water surface.']
         ],
         flow: ['Grove ultrasonic sensor', 'Raspberry Pi · Node-RED', 'SQLite outbox', 'Supabase'],
         note: 'Node-RED also feeds the local dashboard. Site B uses simulated input.'
       },
       {
         title: 'Smart Room Safety Monitoring',
+        id: 'smart-room',
+        short: 'Smart Room',
+        summary: 'Sensor monitoring and bidirectional device control with ACK feedback.',
+        evidence: [['smart-dashboard', 'Dashboard · live device and Identify ACK']],
         details: [
           ['Challenge', 'Make room telemetry and device status visible, with feedback when settings change.'],
-          ['My contribution', 'Programmed the Pico W in MicroPython and developed device commands and heartbeat monitoring.'],
-          ['Technical approach', 'A Pico W sends readings over UART to a Raspberry Pi gateway. MQTT links the gateway to the Flask dashboard, which stores readings in SQLite. Commands return to the Pico W.'],
+          ['Team implementation', 'Our team built and tested the sensing, gateway and dashboard system.'],
+          ['Technical approach', 'Browser commands go through Flask, MQTT, the Raspberry Pi gateway and UART to the Pico W. The Pico returns an ACK through the reverse path, and the dashboard shows it.'],
           ['Result', 'The dashboard displayed live telemetry and a successful settings acknowledgement during testing. Testing covered malformed messages, button events, device identification and data persistence after a web-app restart.']
         ],
-        flow: ['Pico W · MicroPython', 'Raspberry Pi · UART gateway', 'MQTT', 'Flask dashboard · SQLite'],
-        note: 'Telemetry and acknowledgements travel toward the dashboard. Settings commands travel back toward the node.'
+        flow: ['Browser', 'Flask', 'MQTT', 'Raspberry Pi gateway', 'UART', 'Pico W'],
+        note: 'The ACK returns along the reverse path. Telemetry resumed after the tested broker outage, but a full gateway queue can drop old messages.'
       }
     ],
   },
@@ -105,6 +113,7 @@ const mediaViewer = document.querySelector('#media-viewer');
 const viewerBody = mediaViewer.querySelector('.viewer-body');
 const viewerTitle = mediaViewer.querySelector('h2');
 let mediaTrigger;
+let mediaPanelScroll = 0;
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -115,6 +124,7 @@ function element(tag, className, text) {
 
 function openMedia(item, trigger) {
   mediaTrigger = trigger;
+  mediaPanelScroll = document.querySelector('#skill-panel').scrollTop;
   viewerTitle.textContent = item.title;
   const media = element(item.video ? 'video' : 'img');
   if (item.video) {
@@ -130,13 +140,22 @@ function openMedia(item, trigger) {
   mediaViewer.showModal();
 }
 
+mediaViewer.addEventListener('keydown', event => {
+  if (event.key !== 'Escape') return;
+  event.preventDefault();
+  event.stopPropagation();
+  mediaViewer.close();
+});
 mediaViewer.querySelector('button').onclick = () => mediaViewer.close();
 mediaViewer.addEventListener('click', event => {
   if (event.target === mediaViewer) mediaViewer.close();
 });
 mediaViewer.addEventListener('close', () => {
   viewerBody.replaceChildren();
-  mediaTrigger?.focus({preventScroll: true});
+  if (mediaTrigger?.isConnected) {
+    mediaTrigger.focus({preventScroll: true});
+    document.querySelector('#skill-panel').scrollTo(0, mediaPanelScroll);
+  }
 });
 
 function galleryGroup([heading, folder, titles]) {
@@ -168,8 +187,42 @@ function galleryGroup([heading, folder, titles]) {
   return section;
 }
 
+function evidenceCard(source, title) {
+  const button = element('button', 'media-card');
+  button.type = 'button';
+  button.setAttribute('aria-haspopup', 'dialog');
+  const image = element('img');
+  image.src = source;
+  image.alt = '';
+  button.append(image, element('span', 'media-caption', title));
+  button.onclick = () => openMedia({source, title}, button);
+  return button;
+}
+
+function projectNavigation(projects) {
+  const nav = element('nav', 'iot-jump');
+  nav.setAttribute('aria-label', 'IoT projects');
+  for (const project of projects) {
+    const link = element('a', 'experience-card', project.short);
+    link.href = '#' + project.id;
+    link.append(element('span', '', project.summary));
+    link.onclick = event => {
+      event.preventDefault();
+      const target = document.getElementById(project.id);
+      const panel = document.querySelector('#skill-panel');
+      const header = panel.querySelector('.panel-header');
+      panel.scrollTo(0, panel.scrollTop + target.getBoundingClientRect().top - header.getBoundingClientRect().bottom - 8);
+      target.focus({preventScroll: true});
+    };
+    nav.append(link);
+  }
+  return nav;
+}
+
 function projectSection(project) {
   const section = element('section', 'technical-project');
+  section.id = project.id;
+  section.tabIndex = -1;
   section.append(element('h3', '', project.title));
   const details = element('dl');
   for (const [term, value] of project.details) {
@@ -182,9 +235,12 @@ function projectSection(project) {
   for (const node of project.flow) flow.append(element('li', '', node));
   figure.append(element('figcaption', '', 'Explanatory architecture diagram'), flow, element('p', '', project.note));
   section.append(details, figure);
-  if (project.title === 'Smart Room Safety Monitoring') {
-    section.append(galleryGroup(['Project evidence', 'iot', ['Smart Room wired prototype', 'Smart Room dashboard excerpt']]));
+  const evidence = element('div', 'media-grid iot-evidence');
+  for (const [file, title] of project.evidence) {
+    evidence.append(evidenceCard('iot-evidence/' + file + '.png', title));
   }
+  if (project.id === 'smart-room') evidence.prepend(evidenceCard('media/smart-room-hardware.jpg', 'Smart Room wired prototype'));
+  section.append(evidence);
   return section;
 }
 
@@ -226,7 +282,13 @@ function renderPortfolio(skill) {
   const section = portfolioSections[skill];
   portfolioContent.replaceChildren();
   if (section.intro) portfolioContent.append(element('p', 'panel-intro', section.intro));
-  if (section.projects) portfolioContent.append(...section.projects.map(projectSection));
+  if (section.projects) portfolioContent.append(projectNavigation(section.projects), ...section.projects.map(projectSection));
+  if (skill === 'meet') {
+    const link = element('button', 'iot-meet-link', 'View Programming & IoT');
+    link.type = 'button';
+    link.onclick = () => { select(props.findIndex(([id]) => id === 'iot')); openPanel(document.querySelector('#meet-lucky'), 'iot'); };
+    portfolioContent.append(link);
+  }
   if (section.groups) portfolioContent.append(...section.groups.map(galleryGroup));
   if (section.techniques) {
     portfolioContent.append(element('h3', '', 'Tools and techniques'), element('p', 'panel-intro', section.techniques));

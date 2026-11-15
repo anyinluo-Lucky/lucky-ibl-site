@@ -62,6 +62,7 @@ function update(){
   const i=index(slot);
   $('#capability').textContent=props[i][2];
   $('#skill').textContent=props[i][1];
+  $('#inspect small').textContent = props[i][0] === 'iot' ? 'View IoT projects ↗' : 'Inspect object ↗';
   items.forEach((el,n)=>{
     el.classList.toggle('active',n===i);
     if(n===i) el.setAttribute('aria-current','true'); else el.removeAttribute('aria-current');
@@ -85,8 +86,9 @@ function openPanel(trigger, skill = props[index(slot)][0]){
   returnFocus=trigger;
   $('#panel-title').textContent = renderPortfolio(skill);
   dialog.classList.add('has-portfolio');
-  dialog.scrollTop = 0;
-  if(!dialog.open)dialog.showModal();
+  if (!dialog.open) dialog.showModal();
+  $('#close').focus({preventScroll: true});
+  dialog.scrollTo(0, 0);
 }
 dialog.addEventListener('close',()=>returnFocus?.focus({preventScroll:true}));
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});

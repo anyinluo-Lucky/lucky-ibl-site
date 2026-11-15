@@ -142,3 +142,10 @@
   .climbing-feature { grid-template-columns: 1fr; }
   .climbing-copy .panel-intro { margin-bottom: 0; }
 }
+
+#skill-panel { overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; }
+.iot-jump { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.iot-jump a { display: block; color: var(--accent); text-decoration: none; font-size: 14px; font-weight: 650; padding: 10px; }
+.iot-jump span { display: block; color: var(--dim); font-weight: 400; font-size: 12px; margin-top: 5px; }
+.iot-evidence { margin-top: 14px; }
+.iot-meet-link { background: #ffffff08; border: 1px solid var(--line); color: var(--accent); border-radius: 9px; padding: 10px 12px; }
