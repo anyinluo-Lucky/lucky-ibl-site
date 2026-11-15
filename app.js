@@ -6,14 +6,14 @@ const query=new URLSearchParams(location.search);
 let slot=0, position=0, frame=0, returnFocus, lastWheel=-Infinity;
 let width=0,height=0,drag,suppressClick=false;
 const props = [
+  ['marketing', 'Marketing & Sales', 'Understanding needs and turning ideas into value.', 'prop-marketing'],
+  ['climbing', 'Climbing & Exploration', 'Staying focused, adapting and overcoming challenges.', 'prop-3'],
+  ['making', 'Making & Tools', 'Learning by doing and finding practical solutions.', 'prop-2'],
   ['iot', 'Programming & IoT', 'Turning ideas into working systems.', 'prop-4'],
   ['ai', 'AI Tools & Exploration', 'Exploring ideas and improving workflows with AI.', 'prop-ai'],
-  ['photography', 'Photography & Visual Production', 'From capturing moments to creating complete visual experiences.', 'prop-0'],
   ['drone', 'Drone & VR', 'Exploring new perspectives through technology.', 'prop-1'],
-  ['marketing', 'Marketing & Sales', 'Understanding needs and turning ideas into value.', 'prop-marketing'],
-  ['teamwork', 'Communication & Teamwork', 'Connecting people and moving forward together.', 'prop-teamwork'],
-  ['making', 'Making & Tools', 'Learning by doing and finding practical solutions.', 'prop-2'],
-  ['climbing', 'Climbing & Exploration', 'Staying focused, adapting and overcoming challenges.', 'prop-3']
+  ['photography', 'Photography & Visual Production', 'From capturing moments to creating complete visual experiences.', 'prop-0'],
+  ['teamwork', 'Communication & Teamwork', 'Connecting people and moving forward together.', 'prop-teamwork']
 ];
 const count=props.length, step=Math.PI*2/count;
 const items=props.map(([id, name, description, asset],i)=>{
@@ -47,7 +47,7 @@ function render(){
   const tilt=r*(mobile ? .16 : .12);
   items.forEach((el,i)=>{
     const a=(i-position)*step;
-    const z=Math.cos(a), u=Math.sin(a);
+    const z=Math.cos(a), u=-Math.sin(a); // From the front, clockwise travels toward the viewer’s left.
     // Offset the far arc so the rear object reads beside Lucky's silhouette.
     const rearOffset = Math.pow(Math.max(0, -z), 5);
     const x = width / 2 + u * r + rearOffset * (mobile ? 82 : 125);
@@ -95,12 +95,12 @@ dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 $('#close').onclick=$('#back').onclick=()=>dialog.close();
 inspect.onclick=()=>openPanel(inspect);
 $('#meet-lucky').onclick=()=>openPanel($('#meet-lucky'), 'meet');
-$('#prev').onclick=()=>select(slot-1);
-$('#next').onclick=()=>select(slot+1);
+$('#prev').onclick=()=>select(slot+1);
+$('#next').onclick=()=>select(slot-1);
 document.addEventListener('keydown',e=>{
   if(dialog.open||e.altKey||e.ctrlKey||e.metaKey||!['ArrowLeft','ArrowRight'].includes(e.key))return;
   e.preventDefault();
-  select(slot+(e.key==='ArrowRight'?1:-1));
+  select(slot+(e.key==='ArrowRight'?-1:1));
 });
 scene.addEventListener('wheel',e=>{
   if(e.ctrlKey)return;
@@ -126,7 +126,7 @@ scene.addEventListener('pointermove',e=>{
     scene.setPointerCapture(e.pointerId);
     scene.classList.add('dragging');
   }
-  position=drag.from-dx/Math.max(43,width/10);
+  position=drag.from+dx/Math.max(43,width/10);
   render();
 });
 function endDrag(e){
