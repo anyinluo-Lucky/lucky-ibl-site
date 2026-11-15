@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="A visual prototype for Lucky's miniature studio."><title>Lucky Studio</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="portfolio.css"><script defer src="portfolio-media.js"></script><script defer src="portfolio.js"></script><script defer src="app.js"></script></head>
+<body data-concept="a">
+<header class="top"><a class="brand" href="index.html"><span class="mark" aria-hidden="true">✦</span><span>Lucky Studio<small>INTERACTIVE PORTFOLIO</small></span></a>
+<button id="meet-lucky" type="button" aria-haspopup="dialog">Meet Lucky ↗</button>
+</header>
+<main>
+<section class="intro" aria-labelledby="heading">
+<h1 id="heading">Hi, I’m <em>Lucky.</em></h1>
+<p class="identity">Juancan Luo · Master of Information Technology</p>
+<p class="lede">A goal-driven problem solver with a creative mind.</p>
+</section>
+<section class="scene" aria-label="Orbital skill carousel">
+<div class="room" aria-hidden="true"></div><div class="rail"></div>
+<div class="avatar" role="img" aria-label="Lucky waving, with a long ponytail and clear glasses"></div>
+<div class="objects"></div>
+</section>
+<section class="controls" aria-label="Selected skill">
+<p class="invitation">Select a skill. Discover how I solve problems.</p>
+<div class="selection-row"><button class="arrow" id="prev" aria-label="Previous skill">←</button><button id="inspect" aria-haspopup="dialog"><span id="skill" aria-live="polite">Programming &amp; IoT</span><span id="capability"></span><small>Inspect object ↗</small></button><button class="arrow" id="next" aria-label="Next skill">→</button></div>
+</section>
+</main>
+<dialog id="skill-panel" aria-labelledby="panel-title"><div class="panel-content">
+<header class="panel-header"><span class="kicker"><i></i> OBJECT NOTES </span><button id="close" aria-label="Close details" autofocus>×</button></header>
+<h2 id="panel-title">Programming &amp; IoT</h2>
+<div id="portfolio-content"></div>
+<button id="back">← Back to the orbit</button>
+</div></dialog>
+<dialog id="media-viewer" aria-labelledby="viewer-title">
+<header class="viewer-header"><h2 id="viewer-title"></h2><button type="button" aria-label="Close media viewer" autofocus>×</button></header>
+<div class="viewer-body"></div>
+</dialog>
+</body></html>
