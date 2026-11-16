@@ -19,6 +19,22 @@ const portfolioMedia = {
     [
       "photography-4.jpg",
       "media/photography-4.jpg"
+    ],
+    [
+      "photography-5.jpg",
+      "media/photography-5.jpg"
+    ],
+    [
+      "photography-6.jpg",
+      "media/photography-6.jpg"
+    ],
+    [
+      "photography-7.jpg",
+      "media/photography-7.jpg"
+    ],
+    [
+      "photography-8.jpg",
+      "media/photography-8.jpg"
     ]
   ],
   "drone-vr": [
@@ -45,6 +61,14 @@ const portfolioMedia = {
     [
       "drone-vr-5.jpg",
       "media/drone-vr-5.jpg"
+    ],
+    [
+      "guangzhou-panorama.jpg",
+      "media/guangzhou-panorama.jpg"
+    ],
+    [
+      "drone-birthday.mp4",
+      "media/drone-birthday.jpg"
     ]
   ],
   "motion-3d": [

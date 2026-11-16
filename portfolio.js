@@ -3,7 +3,7 @@ const portfolioSections = {
     title: 'Photography & Visual Production',
     intro: 'Portraits, motorsport, commercial edits and 3D motion studies.',
     groups: [
-      ['Photography', 'photography', ['Motorsport in motion', 'Beach portrait series', 'Seaside portrait', 'Portrait in red', 'Cathedral at dusk']],
+      ['Photography', 'photography', ['Motorsport in motion', 'Beach portrait series', 'Seaside portrait', 'Portrait in red', 'Cathedral at dusk', 'Surfers framed by coastal rocks', 'Candlelight after dark', 'Reflections at low tide', 'Seabird in flight']],
       ['Video Editing & Post-production', 'video-editing', ['Behind the scenes', 'Product video', 'Promotion guide', 'Mercedes-Benz test drive']],
       ['3D & Motion Design', 'motion-3d', ['Lighting study', 'Building growth', 'Aircraft animation']]
     ],
@@ -13,7 +13,7 @@ const portfolioSections = {
     title: 'Drone & VR',
     intro: 'Aerial and overhead perspectives, alongside experience producing property photography, drone panoramas and VR assets at KE Holdings.',
     groups: [
-      ['Selected aerial and overhead work', 'drone-vr', ['IFC from above', 'Coastal viewpoints', 'Pool from above', 'Breaking wave', 'Tianhe City from above', 'Canton Tower at night']]
+      ['Aerial photography', 'drone-vr', ['IFC from above', 'Coastal viewpoints', 'Birthday trip to Nan’ao', 'Pool from above', 'Guangzhou skyline at dusk', 'Breaking wave', 'Tianhe City from above', 'Canton Tower at night'], [0, 1, 7, 2, 6, 3, 4, 5]]
     ],
     techniques: 'Top-down composition, urban geometry and coastal viewpoints.'
   },
@@ -158,12 +158,20 @@ mediaViewer.addEventListener('close', () => {
   }
 });
 
-function galleryGroup([heading, folder, titles]) {
+function galleryGroup([heading, folder, titles, indices]) {
   const section = element('section', 'media-group');
   const grid = element('div', 'media-grid');
-  if (folder === 'drone-vr' || folder === 'photography') grid.classList.add('editorial-grid');
+  if (folder === 'drone-vr') grid.classList.add('drone-gallery');
+  if (folder === 'photography') grid.classList.add('editorial-grid');
   section.append(element('h3', '', heading), grid);
-  portfolioMedia[folder].forEach(([name, preview], index) => {
+  const entries = portfolioMedia[folder];
+  const selected = indices ? indices.map(index => entries[index]) : entries;
+  const columns = folder === 'drone-vr' ? [0, 1, 2].map(() => {
+    const column = element('div', 'drone-column');
+    grid.append(column);
+    return column;
+  }) : null;
+  selected.forEach(([name, preview], index) => {
     const item = {
       title: titles[index],
       preview,
@@ -182,7 +190,8 @@ function galleryGroup([heading, folder, titles]) {
     caption.append(element('span', 'media-action', item.video ? 'Play video' : 'View full image'));
     button.append(image, caption);
     button.onclick = () => openMedia(item, button);
-    grid.append(button);
+    const destination = columns ? columns[index < 3 ? 0 : index < 5 ? 1 : 2] : grid;
+    destination.append(button);
   });
   return section;
 }
@@ -219,11 +228,48 @@ function projectNavigation(projects) {
   return nav;
 }
 
+function iotPhotoFlow(id) {
+  const water = id === 'water-monitoring';
+  const board = ['reference-pi4.jpg', 'Raspberry Pi 4', water ? 'SQLite stores events offline' : 'MQTT ↔ UART gateway'];
+  const steps = water
+    ? [['reference-grove.webp', 'Ultrasonic sensor', 'Read water level'], board, ['water-replay.png', 'Supabase', 'Replay events when online']]
+    : [['smart-dashboard.png', 'Web dashboard', 'Send a command'], board, ['reference-pico.jpg', 'Pico W', 'Run command and return ACK']];
+  const figure = element('figure', 'iot-photo-overview');
+  const flow = element('ol', 'iot-photo-flow');
+  for (const [file, title, detail] of steps) {
+    const step = element('li');
+    const photo = evidenceCard('iot-evidence/' + file, title);
+    step.append(photo, element('span', '', detail));
+    flow.append(step);
+  }
+  const credits = element('div', 'iot-photo-credits', 'Hardware reference photos: ');
+  const sources = [
+    water
+      ? ['Grove · Seeed Studio (CC BY-SA 4.0)', 'https://wiki.seeedstudio.com/Grove-Ultrasonic_Ranger/', '4.0', true]
+      : ['Pico W · SparkFun Electronics (CC BY 2.0)', 'https://commons.wikimedia.org/wiki/File:RPI_PICO_W_1.jpg', '2.0', false],
+    ['Pi 4 · Libreravi (CC BY-SA 4.0)', 'https://commons.wikimedia.org/wiki/File:Raspberry_Pi_4_Computer.jpg', '4.0', true]
+  ];
+  for (const [name, href, version, shareAlike] of sources) {
+    const source = element('a', '', name);
+    source.href = href;
+    source.target = '_blank';
+    source.rel = 'noopener';
+    const license = element('a', '', 'license');
+    license.href = 'https://creativecommons.org/licenses/' + (shareAlike ? 'by-sa/' : 'by/') + version + '/';
+    license.target = '_blank';
+    license.rel = 'noopener';
+    credits.append(source, ' [', license, '] ');
+  }
+  figure.append(flow, credits);
+  return figure;
+}
+
 function projectSection(project) {
   const section = element('section', 'technical-project');
   section.id = project.id;
   section.tabIndex = -1;
   section.append(element('h3', '', project.title));
+  section.append(iotPhotoFlow(project.id));
   const details = element('dl');
   for (const [term, value] of project.details) {
     const row = element('div');
@@ -281,12 +327,26 @@ function climbingFeature(photo) {
 function renderPortfolio(skill) {
   const section = portfolioSections[skill];
   portfolioContent.replaceChildren();
-  if (section.intro) portfolioContent.append(element('p', 'panel-intro', section.intro));
+  if (skill === 'meet') {
+    const profile = element('div', 'meet-profile');
+    const photo = evidenceCard('assets/meet-lucky.webp', 'Lucky outdoors at dusk, holding a camera');
+    photo.querySelector('.media-caption').textContent = 'View larger photo ↗';
+    profile.append(photo, element('p', 'panel-intro', section.intro));
+    portfolioContent.append(profile);
+  } else if (section.intro) portfolioContent.append(element('p', 'panel-intro', section.intro));
   if (section.projects) portfolioContent.append(projectNavigation(section.projects), ...section.projects.map(projectSection));
   if (skill === 'meet') {
+    const approach = element('section', 'goal-approach');
+    approach.append(element('h3', '', 'How I work'));
+    const steps = element('ol', 'goal-steps');
+    for (const label of ['Set a goal', 'Take action', 'Check the result']) {
+      steps.append(element('li', '', label));
+    }
+    approach.append(steps);
+    portfolioContent.append(approach);
     const link = element('button', 'iot-meet-link', 'View Programming & IoT');
     link.type = 'button';
-    link.onclick = () => { select(props.findIndex(([id]) => id === 'iot')); openPanel(document.querySelector('#meet-lucky'), 'iot'); };
+    link.onclick = () => { select(props.findIndex(([id]) => id === 'iot')); openPanel(returnFocus, 'iot'); };
     portfolioContent.append(link);
   }
   if (section.groups) portfolioContent.append(...section.groups.map(galleryGroup));

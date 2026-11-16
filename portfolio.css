@@ -149,3 +149,46 @@
 .iot-jump span { display: block; color: var(--dim); font-weight: 400; font-size: 12px; margin-top: 5px; }
 .iot-evidence { margin-top: 14px; }
 .iot-meet-link { background: #ffffff08; border: 1px solid var(--line); color: var(--accent); border-radius: 9px; padding: 10px 12px; }
+
+#avatar-meet { border: 0; padding: 0; background-color: transparent; pointer-events: auto; cursor: pointer; clip-path: ellipse(35% 50%); }
+#avatar-meet:focus-visible { clip-path: none; }
+.goal-approach { margin: 16px 0; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: #1c192b; }
+#portfolio-content .goal-approach h3 { margin: 0 0 10px; font-size: 15px; }
+.goal-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; list-style: none; padding: 0; margin: 0; }
+.goal-steps li { padding: 9px 6px; text-align: center; font-size: 12px; color: var(--accent); background: #322b46; border-radius: 8px; }
+@media (prefers-reduced-motion: no-preference) {
+  #skill-panel[open] .goal-steps li { animation: goal-highlight .65s ease-out both; }
+  #skill-panel[open] .goal-steps li:nth-child(2) { animation-delay: .32s; }
+  #skill-panel[open] .goal-steps li:nth-child(3) { animation-delay: .64s; }
+}
+@keyframes goal-highlight { 0%,100% { background: #322b46; } 45% { background: #684453; } }
+
+.meet-profile { display: grid; grid-template-columns: 72px minmax(0, 54ch); align-items: center; gap: 14px; }
+.meet-profile .media-card { width: 100%; }
+.meet-profile .media-card img { aspect-ratio: auto; object-fit: contain; }
+.meet-profile .media-caption { position: absolute; clip-path: inset(50%); width: 1px; height: 1px; padding: 0; overflow: hidden; white-space: nowrap; }
+#portfolio-content .meet-profile .panel-intro { margin: 0; }
+.iot-overview { margin: 0 0 16px; }
+.iot-cover { width: min(100%, 580px); }
+.iot-overview .iot-cover img { aspect-ratio: auto; object-fit: contain; }
+@media (max-width: 600px) {
+  .meet-profile { grid-template-columns: 68px minmax(0, 1fr); gap: 12px; }
+}
+
+.drone-gallery { align-items: start; }
+.drone-column { display: grid; gap: 12px; }
+.drone-gallery .media-card { width: 100%; align-self: start; }
+.drone-gallery .media-card img { aspect-ratio: auto; object-fit: contain; }
+@media (max-width: 600px) {
+  .drone-column { display: contents; }
+}
+
+.iot-photo-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; list-style: none; padding: 0; margin: 0; }
+.iot-photo-flow li { position: relative; min-width: 0; }
+.iot-photo-flow li:not(:last-child)::after { content: '→'; position: absolute; right: -12px; top: 22%; color: var(--accent); }
+.iot-photo-flow .media-card { width: 100%; }
+.iot-photo-flow .media-card img { aspect-ratio: 4 / 3; object-fit: contain; background: #eee; }
+.iot-photo-flow .media-caption { padding: 6px; font-size: 12px; }
+.iot-photo-flow li > span { display: block; color: var(--dim); font-size: 11px; margin-top: 4px; }
+.iot-photo-credits { margin: 8px 0 16px; font-size: 10px; color: var(--dim); }
+.iot-photo-credits a { color: var(--dim); }

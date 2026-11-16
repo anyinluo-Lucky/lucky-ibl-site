@@ -94,7 +94,9 @@ dialog.addEventListener('close',()=>returnFocus?.focus({preventScroll:true}));
 dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 $('#close').onclick=$('#back').onclick=()=>dialog.close();
 inspect.onclick=()=>openPanel(inspect);
-$('#meet-lucky').onclick=()=>openPanel($('#meet-lucky'), 'meet');
+for (const trigger of [$('#meet-lucky'), $('#avatar-meet')]) {
+  trigger.onclick = () => { if (!suppressClick || trigger.id === 'meet-lucky') openPanel(trigger, 'meet'); };
+}
 $('#prev').onclick=()=>select(slot+1);
 $('#next').onclick=()=>select(slot-1);
 document.addEventListener('keydown',e=>{
